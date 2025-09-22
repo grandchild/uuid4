@@ -20,7 +20,7 @@ static uint64_t seed[2];
 
 
 static uint64_t xorshift128plus(uint64_t *s) {
-  /* http://xorshift.di.unimi.it/xorshift128plus.c */
+  /* http://prng.di.unimi.it/xorshift128plus.c */
   uint64_t s1 = s[0];
   const uint64_t s0 = s[1];
   s[0] = s0;
