@@ -19,14 +19,20 @@
 static uint64_t seed[2];
 
 
-static uint64_t xorshift128plus(uint64_t *s) {
-  /* http://xorshift.di.unimi.it/xorshift128plus.c */
-  uint64_t s1 = s[0];
-  const uint64_t s0 = s[1];
-  s[0] = s0;
-  s1 ^= s1 << 23;
-  s[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5);
-  return s[1] + s0;
+static inline uint64_t rotl(const uint64_t x, int k) {
+  return (x << k) | (x >> (64 - k));
+}
+
+
+static uint64_t xoroshiro128plus(uint64_t *s) {
+  /* https://prng.di.unimi.it/xoroshiro128plus.c */
+  const uint64_t s0 = s[0];
+  uint64_t s1 = s[1];
+  const uint64_t result = s0 + s1;
+  s1 ^= s0;
+  s[0] = rotl(s0, 24) ^ s1 ^ (s1 << 16); // a, b
+  s[1] = rotl(s1, 37); // c
+  return result;
 }
 
 
@@ -71,8 +77,8 @@ void uuid4_generate(char *dst) {
   const char *p;
   int i, n;
   /* get random */
-  s.word[0] = xorshift128plus(seed);
-  s.word[1] = xorshift128plus(seed);
+  s.word[0] = xoroshiro128plus(seed);
+  s.word[1] = xoroshiro128plus(seed);
   /* build string */
   p = template;
   i = 0;
